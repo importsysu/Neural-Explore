@@ -2,6 +2,7 @@ This is the notebook of _Tanli Zuo_
 
 ## Personal TODO List
 优先阅读：
+- DeepXplore: Automated Whitebox Testing of Deep Learning Systems 神经网络的白盒测试 *
 - Spatial Transformer Networks 空间变换网络 *
 - Clustering is Efficient for Approximate Maximum Inner Product Search 最大内积搜索 *
 - Towards Neural Network-Based Reasoning 神经推理器 *
