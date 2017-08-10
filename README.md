@@ -6,14 +6,13 @@ Deep Neural Network is now attracting more and more attention due to its tremend
 In this project we are not looking forward to analyze neural networks theoratically, but instead attempt to understand their behaviors and latent mechanism in a more engineering way. Approaches we tend to use are **Reinforcement Learning**, **Adversarial Examples** and **Visualization**. Again our purpose is to try to understand the neural net rather than comimg up with methods to do visualization or construct adversarial examples.
 
 ## Reinforcement Learning
-Our intuition is that it's hard to reinterpret what's going on based on the parameter space, especially for some large neural networks that have thousands of neurons and millions of parameters, and single or parts of networks may not have certain meaning. Rather, exploring in the policy space may be a good idea since polices may have more semantic meaning[7][8] which is more implicit inside neural networks, and that generally requires Reinforcement Learning algorithms. However, states, actions and rewards are hard to choose and define for general tasks.  
+Our intuition is that it's hard to reinterpret what's going on based on the parameter space, especially for some large neural networks that have thousands of neurons and millions of parameters, and single neuron or parts of networks may not have certain meaning. Rather, exploring in the policy space may be a good idea since polices may have more semantic meaning[7][8] which is more implicit inside neural networks, and that generally requires Reinforcement Learning algorithms. However, states, actions and rewards are hard to choose and define for general tasks.  
 
 ## Adversarial Examples
-And here comes the reason for us to use adversarial exmples. Adversarial samples are
-refered to those deliberately constructed inputs which cause a network to produce the wrong outputs[5][6]. By exploring the knowledge of how to construct asversarial samples combing with the inner-state change inside a neural network, we may be able to gain more insights about the latent mechanism.
+And here comes the reason for us to use adversarial examples. Adversarial examples are refered to those deliberately constructed inputs which cause a network to produce the wrong outputs[5][6]. By exploring the knowledge of how to construct adversarial examples combing with the inner-state changes inside a neural network, we may be able to gain more insights about the latent mechanism.
 
 ## Visualization
-Visualization has been proved to an effective tool when it comes to convolutional networks[9], yet its applications on other typess of neural nets are limited, like recurrent neural networks. We hope we can provide more promising visualization results through the two approaches we mentioned above.
+Visualization has been proved to an effective tool when it comes to convolutional neural networks[9], yet its applications on other types of neural nets are limited, like recurrent neural networks. We hope we can provide more promising visualization results through the two approaches we mentioned above.
 
 
 ## References
