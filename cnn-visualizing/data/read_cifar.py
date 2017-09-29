@@ -52,7 +52,7 @@ class Cifar10Reader(object):
 	def __init__(self, role):
 		self.role=role
 		if role == 'train':
-			temp = [unpickle(os.path.join(cifar_path, 'cifar-10-batches-py/data_batch_%d' % (i + 1)) for i in range(5))]
+			temp = [unpickle(os.path.join(cifar_path, 'cifar-10-batches-py/data_batch_%d' % (i + 1))) for i in range(5)]
 			keys = {b'labels', b'data'}
 			rawdata = {key: numpy.concatenate(tuple(temp[i][key] for i in range(5)), axis=0) for key in keys}
 		elif role == 'test':
