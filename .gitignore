@@ -1,6 +1,9 @@
 #Vim backup file
 *~
 
+#pycharm profile directory
+.idea
+
 #mac attribute file
 .DS_Store
 
