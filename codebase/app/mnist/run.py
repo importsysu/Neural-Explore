@@ -18,7 +18,7 @@ def _eval(sess, model, eval_data, config):
         sum_loss += loss
         sum_eq += np.sum(np.equal(predictions, batch['label']))
     avg_loss = sum_loss / cnt
-    print('loss = {}, error rate = {}'.format(avg_loss, 1. - sum_eq / eval_data.size))
+    print('loss = %.06f, error rate = %.03f' % (avg_loss, 100. - 100. * sum_eq / eval_data.size))
 
 def _train(config):
     print('Building Model')
