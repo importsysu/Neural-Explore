@@ -23,7 +23,7 @@ flags.DEFINE_integer("num_epochs", 10, "Total number of epochs for training [10]
 flags.DEFINE_integer("num_steps", 20000, "Number of steps [20000]")
 flags.DEFINE_integer("load_step", 0, "load step [0]")
 flags.DEFINE_integer("eval_frequency", 100, "eval frequency [100] ")
-flags.DEFINE_float("init_lr", 0.5, "Initial learning rate [0.5]")
+flags.DEFINE_float("init_lr", 0.1, "Initial learning rate [0.5]")
 flags.DEFINE_float("wd", 1e-5, "L2 weight decay for regularization [1e-5]")
 
 # Optimizations
