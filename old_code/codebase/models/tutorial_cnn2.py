@@ -1,23 +1,22 @@
 import tensorflow as tf
-import numpy as np
 
 from models.model import Model
-from dataset import Dataset
+
+from common.layers import conv
 
 class TutorialCNN(Model):
-    """
-    This model is from mnist tutorial.
-    """
+    """Implementation of a simple CNN."""
+
     def __init__(self, config, scope = "MnistGraph"):
         self.config = config
         self.global_step = tf.get_variable('global_step', shape=[], dtype='int32',
                                            initializer=tf.constant_initializer(0), trainable=False)
-
         # Define forward inputs here
         #batch_size remains None here
         if config.use_placeholder:
             self.x = tf.placeholder(tf.float32, shape=(None, config.IMAGE_SIZE, config.IMAGE_SIZE, config.NUM_CHANNELS))
             self.y = tf.placeholder(tf.int64, shape=(None,))
+            self.is_train = tf.placeholder('bool', [], 'is_train')
         else:
             raise ValueError('placeholders are required currently.')
 
@@ -27,12 +26,15 @@ class TutorialCNN(Model):
             self.var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope)
 
     def _build_forward(self):
+        self.conv1 = tf.layers.conv2d(self.x, 32, [5, 5], scope='conv1')
+
         with tf.variable_scope('conv1') as scope:
             conv1_weights = tf.Variable(
                 tf.truncated_normal([5, 5, self.config.NUM_CHANNELS, 32],  # 5x5 filter, depth 32.
                                     stddev=0.1,
                                     seed=self.config.SEED))
             conv1_biases = tf.Variable(tf.zeros([32]))
+            self.debug_var = conv1_weights
             self.conv1 = tf.nn.conv2d(self.x,
                                 conv1_weights,
                                 strides=[1, 1, 1, 1],
@@ -70,7 +72,8 @@ class TutorialCNN(Model):
             fc1_biases = tf.Variable(tf.constant(0.1, shape=[512]))
             tf.add_to_collection("reg_vars", fc1_weights)
             tf.add_to_collection("reg_vars", fc1_biases)
-            self.fc1 = tf.nn.relu(tf.matmul(flatterned, fc1_weights) + fc1_biases)
+            _fc1 = tf.nn.relu(tf.matmul(flatterned, fc1_weights) + fc1_biases)
+            self.fc1 = tf.cond(self.is_train, lambda: tf.nn.dropout(_fc1, 0.5, seed=self.config.SEED), lambda: _fc1)
         with tf.variable_scope('fc2') as scope:
             fc2_weights = tf.Variable(
                 tf.truncated_normal([512, self.config.NUM_LABELS],
@@ -81,8 +84,11 @@ class TutorialCNN(Model):
             tf.add_to_collection("reg_vars", fc2_biases)
             self.fc2 = tf.matmul(self.fc1, fc2_weights) + fc2_biases
         self.logits = self.fc2
+        # Get outputs
         self.prob = tf.nn.softmax(self.fc2)
         self.prediction = tf.argmax(self.prob, axis=1)
+        correct_prediction = tf.equal(self.prediction, self.y)
+        self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     def _build_loss(self):
         self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.y))
@@ -100,9 +106,10 @@ class TutorialCNN(Model):
     def get_var_list(self):
         return self.var_list
 
-    def get_feed_dict(self, batch, supervised=True):
+    def get_feed_dict(self, batch, is_train, supervised=True):
         feed_dict = {}
         feed_dict[self.x] = batch['data']
+        feed_dict[self.is_train] = is_train
         if supervised:
             feed_dict[self.y] = batch['label']
         return feed_dict

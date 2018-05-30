@@ -4,7 +4,6 @@ import numpy as np
 from models import Model
 from common import average_gradients
 
-
 class Trainer(object):
     def __init__(self, config, model):
         assert isinstance(model, Model)
@@ -13,8 +12,23 @@ class Trainer(object):
         self.loss = model.get_loss()
         self.summary = model.get_summary()
         self.global_step = model.get_global_step()
-        self.opt = tf.train.AdadeltaOptimizer(config.init_lr)
-        self.grads = self.opt.compute_gradients(self.loss, model.get_var_list())
+
+    def set_trainer(self, optimizer = 'Momentum', **argv):
+        if optimizer == 'Momentum':
+            self.learning_rate = tf.train.exponential_decay(
+                self.config.init_lr,  # Base learning rate.
+                self.global_step * self.config.batch_size,  # Current index into the dataset.
+                argv['training_size'],  # Decay step.
+                0.95,  # Decay rate.
+                staircase=True)
+            # Use simple momentum for the optimization.
+            self.opt = tf.train.MomentumOptimizer(self.learning_rate, 0.9)
+        elif optimizer == 'Adadelta':
+            self.opt = tf.train.AdadeltaOptimizer(self.config.init_lr)
+        else:
+            raise ValueError('Invalid Optimizer')
+
+        self.grads = self.opt.compute_gradients(self.loss, self.model.get_var_list())
         self.train_op = self.opt.apply_gradients(self.grads, global_step=self.global_step)
 
     def step(self, sess, batch, get_summary=False):

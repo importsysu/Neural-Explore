@@ -36,7 +36,7 @@ class Dataset(object):
             self.data = self.reader.get_all_data()
             self.size = self.reader.get_data_size()
 
-    def get_batches(self, batch_size, num_batches=None, num_epoches = 1, shuffle=False, sample_type = 'chain'):
+    def get_batches(self, batch_size, num_batches=None, num_epoches = 1, shuffle=False, sample_type = 'cycle'):
         '''Get batches from the dataset
 
         Args:
@@ -50,19 +50,27 @@ class Dataset(object):
             num_batches = num_batches_per_epoch * num_epoches
         num_epoches = int(math.ceil(num_batches / num_batches_per_epoch))
 
-        if sample_type == 'chain':
-            for epoch in range(num_epoches):
-                idx = itertools.chain(range(self.size))
-                for _ in range(num_batches_per_epoch):
-                    batch_idx = [next(idx, None) for k in range(batch_size)]
-                    batch_idx = list(itertools.takewhile(lambda x: x is not None, batch_idx))
-                    batch_data = {
-                        key: list(map(val.__getitem__, batch_idx))
-                        for key, val in self.data.items()
-                    }
-                    yield batch_data
+        if sample_type == 'cycle':
+            idx = itertools.cycle(range(self.size))
+            for _ in range(num_batches):
+                batch_idx = [next(idx) for k in range(batch_size)]
+                batch_data = {
+                    key: val[batch_idx]
+                    for key, val in self.data.items()
+                }
+                yield batch_data
+        elif sample_type == 'once':
+            idx = itertools.chain(range(self.size))
+            for _ in range(num_batches):
+                batch_idx = [next(idx, None) for k in range(batch_size)]
+                batch_idx = list(itertools.takewhile(lambda x: x is not None, batch_idx))
+                batch_data = {
+                    key: list(map(val.__getitem__, batch_idx))
+                    for key, val in self.data.items()
+                }
+                yield batch_data
         else:
-            raise ValueError('Sample-Type only supports chain')
+            raise ValueError('Sample-Type invalid')
 
     def split_validation(self, validation_size):
         assert validation_size <= self.size

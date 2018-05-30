@@ -18,13 +18,12 @@ flags.DEFINE_string("mode", "test", "trains | test | forward [test]")
 flags.DEFINE_integer("validation_size", 5000, "validation size [5000]")
 
 # Training / test parameters
-flags.DEFINE_integer("batch_size", 60, "Batch size [60]")
+flags.DEFINE_integer("batch_size", 64, "Batch size [64]")
 flags.DEFINE_integer("num_epochs", 10, "Total number of epochs for training [10]")
 flags.DEFINE_integer("num_steps", 20000, "Number of steps [20000]")
 flags.DEFINE_integer("load_step", 0, "load step [0]")
-flags.DEFINE_integer("eval_frequency", 100, "eval frequency [100] ")
-flags.DEFINE_float("init_lr", 0.1, "Initial learning rate [0.5]")
-flags.DEFINE_float("wd", 1e-5, "L2 weight decay for regularization [1e-5]")
+flags.DEFINE_float("init_lr", 0.01, "Initial learning rate [0.01]")
+flags.DEFINE_float("wd", 5e-4, "L2 weight decay for regularization [5e-4]")
 
 # Optimizations
 #flags.DEFINE_bool("cluster", False, "Cluster data for faster training [False]")
@@ -32,7 +31,7 @@ flags.DEFINE_float("wd", 1e-5, "L2 weight decay for regularization [1e-5]")
 # Logging and saving options
 flags.DEFINE_boolean("progress", True, "Show progress? [True]")
 flags.DEFINE_integer("log_period", 100, "Log period [100]")
-flags.DEFINE_integer("eval_period", 1000, "Eval period [1000]")
+flags.DEFINE_integer("eval_period", 100, "Eval period [100]")
 flags.DEFINE_integer("save_period", 1000, "Save Period [1000]")
 flags.DEFINE_integer("max_to_keep", 20, "Max recent saves to keep [20]")
 flags.DEFINE_float("decay", 0.9, "Exponential moving average decay for logging values [0.9]")
