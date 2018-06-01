@@ -10,7 +10,7 @@ def download_dataset(data_name, out_dir=None):
     if data_name not in DATASETS:
         raise ValueError('name "{}" not found'.format(data_name))
     base_url = DATA_URL % data_name
-    file_list = requests.get(base_url+'files.txt').content.strip().split('\n')
+    file_list = requests.get(base_url+'files.txt').content.encode('ascii').strip().split('\n')
     print(str(len(file_list)) + ' files to download')
 
     # creating directory
