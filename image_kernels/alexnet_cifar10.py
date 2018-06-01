@@ -32,7 +32,7 @@ def build_train_op(image_tensor, label_tensor, is_training):
     alexnet_argscope = alexnet_v2_arg_scope(weight_decay=FLAGS.weight_decay)
     global_step = tf.get_variable(name="global_step", shape=[], dtype=tf.int32, trainable=False)
     with slim.arg_scope(alexnet_argscope):
-        logits, end_points = alexnet_v2(image_tensor, is_training=is_training)
+        logits, end_points = alexnet_v2(image_tensor, is_training=is_training, num_classes=10)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label_tensor))
     accuracy = tf.reduce_sum(tf.cast(tf.equal(tf.cast(tf.argmax(logits,1),tf.int32), label_tensor),tf.int32))
     end_points['loss'], end_points['accuracy'] = loss, accuracy

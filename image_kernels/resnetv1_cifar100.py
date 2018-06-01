@@ -1,7 +1,7 @@
 from os.path import join, exists
 import numpy as np
 import tensorflow as tf
-from nets.vgg import vgg_19, vgg_arg_scope
+from nets.resnet_v1 import resnet_v1_50, resnet_arg_scope
 from input import download_dataset
 
 tf.app.flags.DEFINE_integer('batch_size', 60, "Batch size")
@@ -9,7 +9,7 @@ tf.app.flags.DEFINE_integer('num_iters', 10000, "Iteration count")
 tf.app.flags.DEFINE_float('weight_decay', 0.1, 'Weight decay')
 tf.app.flags.DEFINE_float('learning_rate', 0.03, 'Learning rate')
 tf.app.flags.DEFINE_string('data_dir', './datasets/cifar-10', 'Dataset directory')
-tf.app.flags.DEFINE_string('save_path', './log/vgg19_cifar10', 'Model parameter save path')
+tf.app.flags.DEFINE_string('save_path', './log/resnetv1_cifar10', 'Model parameter save path')
 tf.app.flags.DEFINE_string('stage', 'train', 'Training stage')
 
 FLAGS = tf.app.flags.FLAGS
@@ -29,10 +29,10 @@ def load_cifar(split_name):
 
 
 def build_train_op(image_tensor, label_tensor, is_training):
-    vgg_argscope = vgg_arg_scope(weight_decay=FLAGS.weight_decay)
+    resnet_argscope = resnet_arg_scope(weight_decay=FLAGS.weight_decay)
     global_step = tf.get_variable(name="global_step", shape=[], dtype=tf.int32, trainable=False)
-    with slim.arg_scope(vgg_argscope):
-        logits, end_points = vgg_19(image_tensor, is_training=is_training, num_classes=10)
+    with slim.arg_scope(resnet_argscope):
+        logits, end_points = resnet_v1_50(image_tensor, is_training=is_training, num_classes=100)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label_tensor))
     accuracy = tf.reduce_sum(tf.cast(tf.equal(tf.cast(tf.argmax(logits,1),tf.int32), label_tensor),tf.int32))
     end_points['loss'], end_points['accuracy'] = loss, accuracy

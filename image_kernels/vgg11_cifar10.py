@@ -1,7 +1,7 @@
 from os.path import join, exists
 import numpy as np
 import tensorflow as tf
-from nets.vgg import vgg_a as vgg11, vgg_arg_scope
+from nets.vgg import vgg_a as vgg_11, vgg_arg_scope
 from input import download_dataset
 
 tf.app.flags.DEFINE_integer('batch_size', 60, "Batch size")
@@ -9,7 +9,7 @@ tf.app.flags.DEFINE_integer('num_iters', 10000, "Iteration count")
 tf.app.flags.DEFINE_float('weight_decay', 0.1, 'Weight decay')
 tf.app.flags.DEFINE_float('learning_rate', 0.03, 'Learning rate')
 tf.app.flags.DEFINE_string('data_dir', './datasets/cifar-10', 'Dataset directory')
-tf.app.flags.DEFINE_string('save_path', './log/vgg11', 'Model parameter save path')
+tf.app.flags.DEFINE_string('save_path', './log/vgg11_cifar10', 'Model parameter save path')
 tf.app.flags.DEFINE_string('stage', 'train', 'Training stage')
 
 FLAGS = tf.app.flags.FLAGS
@@ -32,7 +32,7 @@ def build_train_op(image_tensor, label_tensor, is_training):
     vgg_argscope = vgg_arg_scope(weight_decay=FLAGS.weight_decay)
     global_step = tf.get_variable(name="global_step", shape=[], dtype=tf.int32, trainable=False)
     with slim.arg_scope(vgg_argscope):
-        logits, end_points = vgg11(image_tensor, is_training=is_training, num_classes=10)
+        logits, end_points = vgg_11(image_tensor, is_training=is_training, num_classes=10)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label_tensor))
     accuracy = tf.reduce_sum(tf.cast(tf.equal(tf.cast(tf.argmax(logits,1),tf.int32), label_tensor),tf.int32))
     end_points['loss'], end_points['accuracy'] = loss, accuracy
