@@ -28,7 +28,7 @@ def train(train_op, end_points):
     threads = tf.train.start_queue_runners(coord=coord)
     for step in range(FLAGS.num_iters):
         if (step + 1) % 100 == 0:
-            loss_val = sess.run([train_op, end_points['loss']])
+            _, loss_val = sess.run([train_op, end_points['loss']])
             print('loss:' + str(loss_val))
         else:
             train_op.run()
