@@ -1,26 +1,26 @@
 from os.path import join, exists
 import numpy as np
 import tensorflow as tf
-from nets.lenet import lenet, lenet_arg_scope
+from nets.resnet_v1 import resnet_v1_50, resnet_arg_scope
 from input import download_dataset
 
 tf.app.flags.DEFINE_integer('batch_size', 60, "Batch size")
 tf.app.flags.DEFINE_integer('num_iters', 10000, "Iteration count")
 tf.app.flags.DEFINE_float('weight_decay', 0.1, 'Weight decay')
 tf.app.flags.DEFINE_float('learning_rate', 0.03, 'Learning rate')
-tf.app.flags.DEFINE_string('data_dir', './datasets/mnist', 'Dataset directory')
-tf.app.flags.DEFINE_string('save_path', './log/lenet_mnist', 'Model parameter save path')
+tf.app.flags.DEFINE_string('data_dir', './datasets/cifar-10', 'Dataset directory')
+tf.app.flags.DEFINE_string('save_path', './log/resnetv1_cifar10', 'Model parameter save path')
 tf.app.flags.DEFINE_string('stage', 'train', 'Training stage')
 
 FLAGS = tf.app.flags.FLAGS
 
 slim = tf.contrib.slim
 
-def load_mnist(split_name):
+def load_cifar(split_name):
     image_path = join(FLAGS.data_dir, split_name + '_images.npy')
     label_path = join(FLAGS.data_dir, split_name + '_labels.npy')
     if not exists(image_path) or not exists(label_path):
-        download_dataset('mnist')
+        download_dataset('cifar-10')
     image_data, label_data = np.load(image_path), np.load(label_path)
     if FLAGS.stage == 'train':
         return tf.train.slice_input_producer([image_data, label_data], shuffle=True)
@@ -29,10 +29,10 @@ def load_mnist(split_name):
 
 
 def build_train_op(image_tensor, label_tensor, is_training):
-    lenet_argscope = lenet_arg_scope(weight_decay=FLAGS.weight_decay)
+    resnet_argscope = resnet_arg_scope(weight_decay=FLAGS.weight_decay)
     global_step = tf.get_variable(name="global_step", shape=[], dtype=tf.int32, trainable=False)
-    with slim.arg_scope(lenet_argscope):
-        logits, end_points = lenet(image_tensor, is_training=is_training)
+    with slim.arg_scope(resnet_argscope):
+        logits, end_points = resnet_v1_50(image_tensor, is_training=is_training, num_classes=10)
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label_tensor))
     accuracy = tf.reduce_sum(tf.cast(tf.equal(tf.cast(tf.argmax(logits,1),tf.int32), label_tensor),tf.int32))
     end_points['loss'], end_points['accuracy'] = loss, accuracy
@@ -61,10 +61,11 @@ def test(sess, end_points):
     accuracy /= FLAGS.num_iters
     print('loss = {}, accuracy = {}'.format(loss, accuracy))
 
+
 def main(_):
-    image_tensor, label_tensor = load_mnist(FLAGS.stage)
+    image_tensor, label_tensor = load_cifar(FLAGS.stage)
     image_batch, label_batch = tf.train.batch([image_tensor, label_tensor], FLAGS.batch_size)
-    image_batch = tf.expand_dims(image_batch, -1)
+    image_batch = tf.image.resize_images(image_batch, [224, 224])
     label_batch = tf.cast(label_batch, tf.int32)
     is_training = FLAGS.stage in ['train']
     train_op, end_points = build_train_op(image_batch, label_batch, is_training)
